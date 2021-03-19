@@ -133,6 +133,7 @@ static void gui_test(ga_frame_params* params)
 	{
 		// TODO: Homework 4
 		// toggle lighting hint : render settings
+		params->_render_settings->_lighting_enabled = !params->_render_settings->_lighting_enabled;
 	}
 	
 	if (ga_button("Show Cube", 20.0f, 200.0f, params).get_clicked(params))
@@ -140,16 +141,25 @@ static void gui_test(ga_frame_params* params)
 		// TODO: Homework 4
 		// show the cube, consider the entity class members...
 		// don't show others
+		cube.set_active(true);
+		model.set_active(false);
+		model2.set_active(false);
 	}
 	if (ga_button("Show Model 1", 20.0f, 250.0f, params).get_clicked(params))
 	{
 		// TODO: Homework 4
 		// show the first model
+		cube.set_active(false);
+		model.set_active(true);
+		model2.set_active(false);
 	}
 	if (ga_button("Show Model 2", 20.0f, 300.0f, params).get_clicked(params))
 	{
 		// TODO: Homework 4
 		// show the second model
+		cube.set_active(false);
+		model.set_active(false);
+		model2.set_active(true);
 	}
 }
 
