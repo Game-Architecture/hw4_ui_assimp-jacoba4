@@ -25,6 +25,6 @@ protected:
 	static const float k_checkbox_offset;
 
 	void draw_outline(struct ga_frame_params* params, const struct ga_vec2f& min, const struct ga_vec2f& max, const struct ga_vec3f& color, float offset);
-	void draw_check(struct ga_frame_params* params, const struct ga_vec2f& min, const struct ga_vec2f& max, const struct ga_vec3f& color);
-	void draw_fill(struct ga_frame_params* params, const struct ga_vec2f& min, const struct ga_vec2f& max, const struct ga_vec3f& color);
+	void draw_check(struct ga_frame_params* params, const struct ga_vec2f& min, const struct ga_vec2f& max, const struct ga_vec3f& color, float offset);
+	void draw_fill(struct ga_frame_params* params, const struct ga_vec2f& min, const struct ga_vec2f& max, const struct ga_vec3f& color, float offset);
 };
