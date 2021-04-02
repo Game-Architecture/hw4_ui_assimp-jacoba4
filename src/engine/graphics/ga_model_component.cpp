@@ -108,23 +108,33 @@ void ga_mesh::get_vertices(aiMesh* mesh)
 	{
 		// the mesh's mVertices array contains vertex coordinates
 		// our _vertex array needs them...
+		
 
 		// load _vertex_array from mesh->mVertices
+		_vertex_array.push_back({ mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z });
 
-		if (mesh->HasTextureCoords(0))
+		if (mesh->HasTextureCoords(i))
 		{
 			// transfer _texcoords from mesh equivalent
+			_texcoords.push_back({ mesh->mTextureCoords[i]->x,mesh->mTextureCoords[i]->y });
 		}
 		if (mesh->HasNormals())
 		{
 			// transfer _normals from mesh equivalent
+			_normals.push_back({ mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z });
 		}
 	}
 	for (int f = 0; f < mesh->mNumFaces; f++)
 	{
 		// the mesh->mFaces array contains faces made up of indices...
 		// our mesh's _index_array should contain ours...
+		for (int k = 0; k < mesh->mFaces[f].mNumIndices; k++)
+		{
+			_index_array.push_back(mesh->mFaces[f].mIndices[k]);
+		}
+		
 	}
+	_index_count = _index_array.size();
 }
 
 void ga_mesh::make_buffers()
@@ -132,6 +142,61 @@ void ga_mesh::make_buffers()
 	// TODO: Homework 4 
 	// set up vertex and element array buffers for positions, indices, uv's and normals
 	// things are already in the ga_mesh's arrays...
+
+	glGenVertexArrays(1, &_vao);
+	glBindVertexArray(_vao);
+	/* Allocate and assign  Vertex Buffer Objects to our handle */
+	glGenBuffers(4, _vbo);
+
+	/* Bind our first VBO as being the active buffer and storing vertex attributes (coordinates) */
+	glBindBuffer(GL_ARRAY_BUFFER, _vbo[0]);
+
+	/* Copy the vertex data  to our buffer */
+	glBufferData(GL_ARRAY_BUFFER, _vertex_array.size() * sizeof(GLfloat) * 3, _vertex_array.data(), GL_STATIC_DRAW);
+
+	/* Specify that our coordinate data is going into attribute index 0, and contains three floats per vertex */
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	assert(glGetError() == GL_NO_ERROR);
+
+	/* Enable attribute index 0 as being used */
+	glEnableVertexAttribArray(0);
+	assert(glGetError() == GL_NO_ERROR);
+
+	/* Bind our second VBO as being the active buffer and storing vertex attributes (uv's) */
+	glBindBuffer(GL_ARRAY_BUFFER, _vbo[1]);
+	assert(glGetError() == GL_NO_ERROR);
+
+	/* Copy the color data from UVs to our buffer */
+	glBufferData(GL_ARRAY_BUFFER, _texcoords.size() * sizeof(GLfloat) * 2, _texcoords.data(), GL_STATIC_DRAW);
+	assert(glGetError() == GL_NO_ERROR);
+
+	/* Specify that our uv data is going into attribute index 1, and contains two floats per vertex */
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, 0);
+	assert(glGetError() == GL_NO_ERROR);
+
+	/* Enable attribute index 1 as being used */
+	glEnableVertexAttribArray(1);
+	assert(glGetError() == GL_NO_ERROR);
+
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vbo[2]);
+	assert(glGetError() == GL_NO_ERROR);
+
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, _index_array.size() * sizeof(GLushort), _index_array.data(), GL_STATIC_DRAW);
+	assert(glGetError() == GL_NO_ERROR);
+
+	glEnableVertexAttribArray(2);
+	assert(glGetError() == GL_NO_ERROR);
+
+
+	glBindBuffer(GL_ARRAY_BUFFER, _vbo[3]);
+	assert(glGetError() == GL_NO_ERROR);
+	glBufferData(GL_ARRAY_BUFFER, _normals.size() * sizeof(GLfloat) * 3, _normals.data(), GL_STATIC_DRAW);
+	assert(glGetError() == GL_NO_ERROR);
+	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	assert(glGetError() == GL_NO_ERROR);
+	glEnableVertexAttribArray(3);
+	assert(glGetError() == GL_NO_ERROR);
 
 }
 
@@ -154,6 +219,9 @@ void ga_mesh::create_from_aiMesh(aiMesh* mesh, const aiScene* scene)
 
 	// get color from the scene->mMaterials[] according to the mesh->mMaterialIndex
 	// check out the structure of ga_lit_material
+	aiColor3D color (0.f,0.f,0.f);
+	scene->mMaterials[mesh->mMaterialIndex]->Get(AI_MATKEY_COLOR_DIFFUSE,color);
+	mat->set_color({ color.r,color.g,color.b });
 
 	_material = mat;
 
